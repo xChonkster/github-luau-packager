@@ -20,10 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\github-luau-packager.cpp" />
-    <ClCompile Include="src\allocator\allocator.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\allocator\allocator.hpp" />
     <ClInclude Include="src\parser\parser.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

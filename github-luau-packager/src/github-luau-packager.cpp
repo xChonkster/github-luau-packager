@@ -41,7 +41,6 @@ int main()
 	const std::filesystem::path current_path = std::filesystem::current_path();
 
 	// print instructions
-
 	std::printf( "%s\nSupported extentions: ", message );
 
 	for ( const std::string& extention : extentions )
@@ -50,7 +49,6 @@ int main()
 	std::printf( "\n" );
 
 	// loop
-
 	while ( true )
 	{
 		std::cout << ">>> ";
@@ -61,7 +59,11 @@ int main()
 
 		const std::string final = parser::fmt( "local GITHUB_LUAU_TREE = {:s}{:s}\n{:s}\n", hierarchy, importer, parser::main_file_buffer );
 
-		std::printf( "\n%s\n", final.c_str() );
+		std::ofstream output{ current_path.string() + "\\output.lua", std::ios::binary };
+
+		output.write( final.data(), final.length() );
+
+		std::printf( "output written to \"output.lua\"\n" );
 	}
 }
 

@@ -2,10 +2,8 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="src\github-luau-packager.cpp" />
-    <ClCompile Include="src\allocator\allocator.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\allocator\allocator.hpp" />
     <ClInclude Include="src\parser\parser.hpp" />
   </ItemGroup>
 </Project>

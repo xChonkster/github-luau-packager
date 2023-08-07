@@ -59,9 +59,8 @@ std::string parse( const std::filesystem::path& path, const std::unordered_set<s
 			continue; // just go to next
 		}
 
-		if ( extentions.find( entry.path().extension().string() ) == extentions.end() )
+		if ( extentions.find( entry.path().extension().string() ) == extentions.end() || entry.path().filename().string() == "output.lua" )
 			continue;
-
 
 		// atp we know we have a file
 		std::ifstream file{ entry.path().string(), std::ios::binary };
