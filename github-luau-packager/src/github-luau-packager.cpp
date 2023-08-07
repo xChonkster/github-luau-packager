@@ -20,7 +20,15 @@ Import function name is GITHUB_LUAU_IMPORT
 
 const char* importer = R"(
 
-local function GITHUB_LUAU_IMPORT(name)
+local cache = {}
+
+GITHUB_LUAU_IMPORT = function(name)
+	local cached = cache[name]
+
+	if cached then
+		return cached
+	end
+
 	local value = GITHUB_LUAU_TREE
 
 	for _, index in string.split(name, '/') do
@@ -29,6 +37,8 @@ local function GITHUB_LUAU_IMPORT(name)
 
 	if typeof(value) == "function" then
 		value = value()
+
+		cache[name] = value
 	end
 
 	return value
@@ -57,7 +67,7 @@ int main()
 
 		const std::string hierarchy = parser::parse( current_path, extentions, 0 );
 
-		const std::string final = parser::fmt( "local GITHUB_LUAU_TREE = {:s}{:s}\n{:s}\n", hierarchy, importer, parser::main_file_buffer );
+		const std::string final = parser::fmt( "local GITHUB_LUAU_IMPORT = nil;\n\nlocal GITHUB_LUAU_TREE = {:s}{:s}\n{:s}\n", hierarchy, importer, parser::main_file_buffer );
 
 		std::ofstream output{ current_path.string() + "\\output.lua", std::ios::binary };
 

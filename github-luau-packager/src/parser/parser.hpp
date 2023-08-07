@@ -50,6 +50,9 @@ std::string parse( const std::filesystem::path& path, const std::unordered_set<s
 
 	for ( const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator( path ) )
 	{
+		if ( entry.path().filename().string() == "output.lua" || entry.path().filename().string() == ".git" )
+			continue;
+
 		if ( entry.is_directory() )
 		{
 			const std::string children = parse( entry.path(), extentions, depth + 1 );
@@ -59,7 +62,7 @@ std::string parse( const std::filesystem::path& path, const std::unordered_set<s
 			continue; // just go to next
 		}
 
-		if ( extentions.find( entry.path().extension().string() ) == extentions.end() || entry.path().filename().string() == "output.lua" )
+		if ( extentions.find( entry.path().extension().string() ) == extentions.end() )
 			continue;
 
 		// atp we know we have a file
