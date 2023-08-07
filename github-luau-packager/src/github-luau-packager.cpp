@@ -4,82 +4,64 @@
 *	packager
 */
 
-#include "./allocator/allocator.hpp"
+#include "./parser/parser.hpp"
 
 #include <iostream>
-#include <fstream>
 #include <filesystem>
-#include <format>
-#include <algorithm>
 
-std::string replace_all( std::string str, const std::string& from, const std::string& to )
-{
-	std::string result;
-	result.reserve( str.length() );
+const char* message = R"(
+Press [ENTER] to package the script
+Press [CTRL + C] to exit this app
+Code must contain a "main.lua" (loader) file
 
-	std::string::size_type lastPos = 0;
-	std::string::size_type findPos;
+Tree name is GITHUB_LUAU_TREE
+Import function name is GITHUB_LUAU_IMPORT
+)";
 
-	while ( std::string::npos != ( findPos = str.find( from, lastPos ) ) )
-	{
-		result.append( str, lastPos, findPos - lastPos );
-		result += to;
-		lastPos = findPos + from.length();
-	}
+const char* importer = R"(
 
-	// Care for the rest after last occurrence
-	result += str.substr( lastPos );
+local function GITHUB_LUAU_IMPORT(name)
+	local value = GITHUB_LUAU_TREE
 
-	return result;
-}
+	for _, index in string.split(name, '/') do
+		value = value[index]
+	end
 
-std::string parse_path( allocator& allocator, std::filesystem::path path, uint32_t depth )
-{
-	const std::string indent = std::string( depth, '\t' );
+	if typeof(value) == "function" then
+		value = value()
+	end
 
-	std::stringstream stream;
-
-	stream << std::vformat( "{:s}[\"{:s}\"] = {:s}\n", std::make_format_args( indent, path.filename().string(), "{" ) );
-
-	for ( const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator( path ) )
-	{
-		if ( entry.is_directory() )
-		{
-			stream << std::vformat( "{:s}", std::make_format_args( parse_path( allocator, entry.path(), depth + 1 ) ) );
-		}
-		else if ( entry.is_regular_file() )
-		{
-			if ( entry.path().extension() != ".lua" )
-				continue;
-
-			std::ifstream file{ entry.path().string() };
-
-			const size_t size = entry.file_size();
-
-			char* memory = reinterpret_cast<char*>( allocator.allocate( size ) );
-
-			file.read( memory, size );
-
-			std::string content = std::string{ memory, static_cast<size_t>( size ) };
-
-			stream << std::vformat( "\n{:s}[\"{:s}\"] = function()\n{:s}{:s}\n{:s}end,\n", std::make_format_args( indent, entry.path().filename().generic_string(), std::string( depth + 1, '\t' ), replace_all( content, "\n", std::string( "\n" ) + std::string( depth + 1, '\t' ) ), indent ) );
-		}
-	}
-
-	stream << std::vformat( "{:s}{:s}\n", std::make_format_args( indent, "}," ) );
-
-	return stream.str();
-};
-
+	return value
+end
+)";
 
 int main()
 {
-	allocator allocator;
+	std::unordered_set<std::string> extentions = { ".lua", ".ttf", ".txt" };
+	const std::filesystem::path current_path = std::filesystem::current_path();
 
-	const std::string parsed = parse_path( allocator, std::filesystem::current_path(), 0 );
+	// print instructions
 
-	std::cout << parsed << std::endl;
+	std::printf( "%s\nSupported extentions: ", message );
 
-	std::cin.get();
+	for ( const std::string& extention : extentions )
+		std::printf( "%s ", extention.c_str() );
+
+	std::printf( "\n" );
+
+	// loop
+
+	while ( true )
+	{
+		std::cout << ">>> ";
+
+		std::cin.get();
+
+		const std::string hierarchy = parser::parse( current_path, extentions, 0 );
+
+		const std::string final = parser::fmt( "local GITHUB_LUAU_TREE = {:s}{:s}\n{:s}\n", hierarchy, importer, parser::main_file_buffer );
+
+		std::printf( "\n%s\n", final.c_str() );
+	}
 }
 

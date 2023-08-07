@@ -6,7 +6,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\allocator\allocator.hpp" />
-    <ClInclude Include="src\html\parser\parser.cpp" />
-    <ClInclude Include="src\html\html.hpp" />
+    <ClInclude Include="src\parser\parser.hpp" />
   </ItemGroup>
 </Project>
