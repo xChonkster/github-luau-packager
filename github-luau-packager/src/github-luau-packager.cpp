@@ -15,14 +15,14 @@ Press [CTRL + C] to exit this app
 Code must contain a "main.lua" (loader) file
 
 Tree name is GITHUB_LUAU_TREE
-Import function name is GITHUB_LUAU_IMPORT
+Import function name is import
 )";
 
 const char* importer = R"(
 
 local cache = {}
 
-GITHUB_LUAU_IMPORT = function(name)
+import = function(name, ...)
 	local cached = cache[name]
 
 	if cached then
@@ -36,7 +36,7 @@ GITHUB_LUAU_IMPORT = function(name)
 	end
 
 	if typeof(value) == "function" then
-		value = value()
+		value = value(...)
 
 		cache[name] = value
 	end
@@ -67,7 +67,7 @@ int main()
 
 		const std::string hierarchy = parser::parse( current_path, extentions, 0 );
 
-		const std::string final = parser::fmt( "local GITHUB_LUAU_IMPORT = nil;\n\nlocal GITHUB_LUAU_TREE = {:s}{:s}\n{:s}\n", hierarchy, importer, parser::main_file_buffer );
+		const std::string final = parser::fmt( "local import = nil;\n\nlocal GITHUB_LUAU_TREE = {:s}{:s}\n{:s}\n", hierarchy, importer, parser::main_file_buffer );
 
 		std::ofstream output{ current_path.string() + "\\output.lua", std::ios::binary };
 

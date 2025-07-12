@@ -31,9 +31,9 @@ void replace_all( std::string& source, const std::string& from, const std::strin
 }
 
 template <typename... Ty>
-std::string fmt( const std::string& fmt, Ty&&... args )
+std::string fmt( const std::string& fmt, const Ty&... args )
 {
-	return std::vformat( fmt, std::make_format_args( std::forward<Ty>( args )... ) );
+	return std::vformat( fmt, std::make_format_args( std::forward<const Ty>( args )... ) );
 }
 
 std::string parse( const std::filesystem::path& path, const std::unordered_set<std::string>& extentions, int depth )
@@ -92,7 +92,7 @@ std::string parse( const std::filesystem::path& path, const std::unordered_set<s
 		// indent file content
 		replace_all( strbuffer, "\n", std::string( "\n" ) + create_indent( depth + 2 ) );
 
-		stream << fmt( "{:s}[\"{:s}\"] = function()\n{:s}{:s}\n{:s}end,\n", create_indent( depth + 1 ), entry.path().filename().generic_string(), create_indent( depth + 2 ), strbuffer, create_indent( depth + 1 ) );
+		stream << fmt( "{:s}[\"{:s}\"] = function(...)\n{:s}{:s}\n{:s}end,\n", create_indent( depth + 1 ), entry.path().filename().generic_string(), create_indent( depth + 2 ), strbuffer, create_indent( depth + 1 ) );
 	}
 
 	stream << create_indent( depth ) << "}";
